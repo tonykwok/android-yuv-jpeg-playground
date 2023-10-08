@@ -15,12 +15,12 @@ LOCAL_CFLAGS := -ffast-math \
 #                           libdl \
 #                           libjnigraphics
 
-LOCAL_LDLIBS += -llog \
+LOCAL_LDLIBS := -llog \
                 -ljnigraphics \
 
 LOCAL_SHARED_LIBRARIES := libjpeg
 
-LOCAL_SRC_FILES += jpegutil.cpp \
+LOCAL_SRC_FILES := jpegutil.cpp \
                    jpegutilnative.cpp
 
 LOCAL_SDK_VERSION := 17

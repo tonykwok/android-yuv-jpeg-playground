@@ -13,10 +13,10 @@ LOCAL_CFLAGS := -ffast-math \
 #                           libdl \
 #                           libjnigraphics
 
-LOCAL_LDLIBS += -llog \
+LOCAL_LDLIBS := -llog \
                 -ljnigraphics \
 
-LOCAL_SRC_FILES += stackblur.cpp
+LOCAL_SRC_FILES := stackblur.cpp
 
 LOCAL_SDK_VERSION := 17
 
