@@ -16,9 +16,6 @@
 
 package com.android.camera.util;
 
-import android.annotation.IntRange;
-import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
@@ -28,7 +25,10 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.media.Image;
-import android.util.Log;
+
+import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -205,7 +205,7 @@ public class ImageUtils {
         return nv21;
     }
 
-    /** Crops JPEG byte array with given {@link android.graphics.Rect}. */
+    /** Crops JPEG byte array with given {@link Rect}. */
     @NonNull
     @SuppressWarnings("deprecation")
     private static byte[] cropJpegByteArray(@NonNull byte[] data, @NonNull Rect cropRect,
