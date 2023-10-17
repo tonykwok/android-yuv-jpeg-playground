@@ -23,7 +23,6 @@ import android.util.Log;
 import android.media.Image;
 
 import java.nio.ByteBuffer;
-import java.util.List;
 
 /**
  * Provides direct access to libjpeg-turbo via the NDK.
@@ -117,7 +116,7 @@ public class JpegUtilNative {
     private static native void copyImagePlaneToBitmap(int width, int height, Object planeBuf,
             int pStride, int rStride, Object outBitmap, int rot90);
 
-    public static void copyImagePlaneToBitmap(ImageProxy.Plane plane, Bitmap bitmap, int rot90) {
+    public static void copyImagePlaneToBitmap(Image.Plane plane, Bitmap bitmap, int rot90) {
         if (bitmap.getConfig() != Bitmap.Config.ALPHA_8) {
             throw new RuntimeException("Unsupported bitmap format");
         }
@@ -144,13 +143,13 @@ public class JpegUtilNative {
         Log.i(TAG, String.format(
                 "Compressing jpeg with size = (%d, %d); " +
                         "y-channel pixel stride = %d; " +
-                        "y-channel row stride =  %d; " +
+                        "y-channel row stride = %d; " +
                         "cb-channel pixel stride = %d; " +
-                        "cb-channel row stride =  %d; " +
+                        "cb-channel row stride = %d; " +
                         "cr-channel pixel stride = %d; " +
-                        "cr-channel row stride =  %d; " +
+                        "cr-channel row stride = %d; " +
                         "crop = [(%d, %d) - (%d, %d)]; " +
-                        "rotation = %d * 90 deg. ",
+                        "rotation = %d * 90 deg ccw. ",
                 width, height, yPStride, yRStride, cbPStride, cbRStride, crPStride, crRStride,
                 cropLeft, cropTop, cropRight, cropBottom, rot90));
         return compressJpegFromYUV420pNative(width, height, yBuf, yPStride, yRStride, cbBuf,
@@ -217,20 +216,18 @@ public class JpegUtilNative {
             throw new IllegalArgumentException("Output buffer must be direct");
         }
         if (crop.left >= crop.right) {
-            throw new IllegalArgumentException("Invalid crop rectangle: " +
-                crop.toString());
+            throw new IllegalArgumentException("Invalid crop rectangle: " + crop);
         }
         if (crop.top >= crop.bottom) {
-            throw new IllegalArgumentException("Invalid crop rectangle: " +
-                crop.toString());
+            throw new IllegalArgumentException("Invalid crop rectangle: " + crop);
         }
         final int NUM_PLANES = 3;
         if (img.getFormat() != ImageFormat.YUV_420_888) {
             throw new IllegalArgumentException("Only " +
                 "ImageFormat.YUV_420_888 is supported, found " + img.getFormat());
         }
-        final List<Image.Plane> planeList = img.getPlanes();
-        if (planeList.size() != NUM_PLANES) {
+        final Image.Plane[] planes = img.getPlanes();
+        if (planes.length != NUM_PLANES) {
             throw new IllegalArgumentException("Only 3-plane image is supported");
         }
 
@@ -239,9 +236,11 @@ public class JpegUtilNative {
         int[] rowStride = new int[NUM_PLANES];
 
         for (int i = 0; i < NUM_PLANES; i++) {
-            ImageProxy.Plane plane = planeList.get(i);
+            Image.Plane plane = planes[i];
 
-            Preconditions.checkState(plane.getBuffer().isDirect());
+            if (!plane.getBuffer().isDirect()) {
+                throw new IllegalArgumentException("Plane buffer must be direct");
+            }
 
             planeBuf[i] = plane.getBuffer();
             pixelStride[i] = plane.getPixelStride();
@@ -283,3 +282,4 @@ public class JpegUtilNative {
         return numBytesWritten;
     }
 }
+
